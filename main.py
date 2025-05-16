@@ -1,43 +1,35 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 import pandas as pd
-import os
 
 app = Flask(__name__)
-
 file_path = "tong hop de thi.xlsx"
 
-def load_records(path):
-    xls = pd.ExcelFile(path)
-    records = []
-    for sheet in xls.sheet_names:
-        df = xls.parse(sheet)
-        df.columns = [str(c).strip().upper() for c in df.columns]
-        if "CÂU HỎI" in df.columns and "ĐÁP ÁN ĐÚNG" in df.columns:
-            for _, row in df.iterrows():
-                q = str(row.get("CÂU HỎI") or "").strip()
-                correct_key = str(row.get("ĐÁP ÁN ĐÚNG") or "").strip()
-                correct_ans = ""
-                if correct_key.isdigit():
-                    correct_ans = str(row.get(f"ĐÁP ÁN {correct_key}", "")).strip()
-                if q and correct_ans:
-                    records.append({
-                        "cauhoi": q,
-                        "dapan": correct_ans
-                    })
-    return records
+# Tải toàn bộ dữ liệu từ Excel, chuẩn hóa tên cột
+xls = pd.ExcelFile(file_path)
+all_data = []
 
-all_records = load_records(file_path)
+for sheet in xls.sheet_names:
+    df = xls.parse(sheet)
+    df.columns = [str(c).strip().upper() for c in df.columns]
+    if "CÂU HỎI" in df.columns and "ĐÁP ÁN ĐÚNG" in df.columns:
+        df["SHEET"] = sheet
+        all_data.append(df[["CÂU HỎI", "ĐÁP ÁN ĐÚNG"]])
+
+df_all = pd.concat(all_data, ignore_index=True)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     keyword = ""
-    records = all_records
+    records = []
+
     if request.method == "POST":
         if "clear" in request.form:
-            return redirect("/")  # Reset từ khóa
-        keyword = request.form.get("keyword", "").strip().lower()
-        if keyword:
-            records = [r for r in all_records if keyword in r["cauhoi"].lower() or keyword in r["dapan"].lower()]
-    return render_template("index.html", records=records, keyword=keyword)
+            keyword = ""
+        else:
+            keyword = request.form["keyword"].strip().lower()
+            records = df_all[df_all["CÂU HỎI"].str.lower().str.contains(keyword, na=False)]
 
-app.run(host="0.0.0.0", port=81)
+    return render_template("index.html", records=records.to_dict(orient="records"), keyword=keyword)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=81)
