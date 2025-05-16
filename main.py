@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 file_path = "tong hop de thi.xlsx"
 
-# Load toàn bộ dữ liệu
+# Load toàn bộ dữ liệu từ Excel
 xls = pd.ExcelFile(file_path)
 all_data = []
 
@@ -26,9 +26,10 @@ def index():
             keyword = ""
         else:
             keyword = request.form["keyword"].strip().lower()
-            results = df_all[df_all["Câu hỏi"].str.lower().str.contains(keyword, na=False)]
-            records = results.to_dict(orient="records")
+            filtered = df_all[df_all["Câu hỏi"].str.lower().str.contains(keyword, na=False)]
+            records = filtered.to_dict(orient="records")
 
+    # ⚠️ KHÔNG gọi .to_dict nếu records là list!
     return render_template("index.html", records=records, keyword=keyword)
 
 if __name__ == "__main__":
