@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tìm kiếm câu hỏi</title>
+</head>
+<body>
+    <h1>Tra cứu câu hỏi</h1>
+    <form method="POST">
+        <input type="text" name="keyword" value="{{ keyword }}" placeholder="Nhập từ khóa">
+        <button type="submit">Tìm</button>
+        <button type="submit" name="clear">Xóa</button>
+    </form>
+    <hr>
+    {% if records %}
+        <ul>
+        {% for r in records %}
+            <li><strong>{{ r['Câu hỏi'] }}</strong><br>Đáp án đúng: {{ r['Đáp án đúng'] }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Không có kết quả nào được tìm thấy.</p>
+    {% endif %}
+</body>
+</html>
