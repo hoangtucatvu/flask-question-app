@@ -6,48 +6,53 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
+            margin: 40px;
         }
         h1 {
-            color: #004085;
+            color: #2c3e50;
+        }
+        form {
+            margin-bottom: 20px;
         }
         input[type="text"] {
             width: 300px;
-            padding: 5px;
+            padding: 8px;
         }
         button {
-            padding: 6px 10px;
-            margin-left: 5px;
+            padding: 8px 12px;
+            margin-left: 4px;
+        }
+        ul {
+            padding-left: 20px;
         }
         li {
             margin-bottom: 15px;
         }
-        .question {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .answer {
+            color: #16a085;
         }
     </style>
 </head>
 <body>
     <h1>Tra cứu câu hỏi</h1>
+
     <form method="POST">
-        <input type="text" name="keyword" value="{{ keyword }}" placeholder="Nhập từ khóa">
+        <input type="text" name="keyword" placeholder="Nhập từ khóa" value="{{ keyword }}">
         <button type="submit">Tìm</button>
         <button type="submit" name="clear">Xóa</button>
     </form>
-    <hr>
+
     {% if records %}
-        <ul>
-        {% for r in records %}
-            <li>
-                <div class="question">{{ r['CÂU HỎI'] }}</div>
-                <div>Đáp án đúng: {{ r['ĐÁP ÁN ĐÚNG'] }}</div>
-            </li>
+    <ul>
+        {% for item in records %}
+        <li>
+            <strong>{{ item["Câu hỏi"] }}</strong><br>
+            <span class="answer">Đáp án đúng: {{ item["Đáp án đúng"] }}</span>
+        </li>
         {% endfor %}
-        </ul>
-    {% else %}
-        <p>Không có kết quả.</p>
+    </ul>
+    {% elif keyword %}
+    <p>Không tìm thấy câu hỏi phù hợp.</p>
     {% endif %}
 </body>
 </html>
